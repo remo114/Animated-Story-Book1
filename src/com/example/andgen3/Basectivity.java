@@ -7,17 +7,14 @@ import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.DelayModifier;
 import org.andengine.entity.modifier.FadeInModifier;
-import org.andengine.entity.modifier.FadeOutModifier;
-import org.andengine.entity.modifier.IEntityModifier;
-import org.andengine.entity.modifier.MoveModifier;
-import org.andengine.entity.modifier.MoveXModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
-import org.andengine.entity.modifier.MoveYModifier;
+import org.andengine.entity.modifier.MoveModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
@@ -27,20 +24,23 @@ import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.modifier.IModifier;
-import org.andengine.util.modifier.IModifier.IModifierListener;
 
+import android.media.MediaPlayer;
 import android.util.Log;
 
 public class Basectivity extends SimpleBaseGameActivity {
 
 	static final int CAMERA_WIDTH = 860;
 	static final int CAMERA_HIGHT = 480;
+	static float START_APPEARING_DELAY = 1.90f;
+	static float APPEARING_TIME = 2.0f;
+	static Boolean audioPlay = false;
 	
 	public Camera mCamera;
 	
 	public Scene mCurrentScene;
 	Sprite spr;
-	Sprite mama,mula,mohis,ma,megh,macch; 
+	Sprite mama,mula,mohis,ma,megh,macch,mParrot,mArrowRighr; 
 	
 	BuildableBitmapTextureAtlas bitmapTextureAtlas;
 	BuildableBitmapTextureAtlas TextureAtlas;
@@ -52,12 +52,13 @@ public class Basectivity extends SimpleBaseGameActivity {
 	public ITextureRegion mMaTextureRegion;
 	public ITextureRegion mMeghTextureRegion;
 	public ITextureRegion mMacchTextureRegion;
+	public ITextureRegion mMparrotRegion;
+	public ITextureRegion mArrowRightRegion;
 	
 	String d = Basectivity.class.getSimpleName();
 	
 	@Override
-	public EngineOptions onCreateEngineOptions() {
-		
+	public EngineOptions onCreateEngineOptions() {		
 		
 		mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HIGHT);
 		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HIGHT), mCamera);
@@ -74,6 +75,8 @@ public class Basectivity extends SimpleBaseGameActivity {
 		this.mMeghTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.bitmapTextureAtlas, this,"cloud.png");
 		this.mMacchTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.bitmapTextureAtlas, this,"mass.png");
 		this.mMohisTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.bitmapTextureAtlas, this,"buffalo.png");
+		this.mMparrotRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.bitmapTextureAtlas, this,"parrot.png");
+		this.mArrowRightRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.bitmapTextureAtlas, this,"arrow_right.png");
 		
 			try {
 				bitmapTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 0));
@@ -91,6 +94,7 @@ public class Basectivity extends SimpleBaseGameActivity {
 		mEngine.registerUpdateHandler(new FPSLogger());
 	    //mCurrentScene = new Scene();
 	 	mCurrentScene =new Scene();
+	 	mCurrentScene.setTouchAreaBindingOnActionMoveEnabled(true);
 	 	mCurrentScene.setBackground(new Background(0.09804f, 0.7274f, 0f));
 //	 	 final float centerX = (CAMERA_HIGHT-this.mTextureRegion.getWidth()) / 2;
 //	     final float centerY = (CAMERA_HIGHT-this.mTextureRegion.getHeight()) / 2;
@@ -100,41 +104,258 @@ public class Basectivity extends SimpleBaseGameActivity {
 	    spr.setWidth(CAMERA_WIDTH);
 	    mCurrentScene.attachChild(spr);
 	    Log.d(d,"mama");
-	    mama = new Sprite(20, 20, mMamaTextureRegion, this.getVertexBufferObjectManager());
+	    mama = new Sprite(20, 20, mMamaTextureRegion, this.getVertexBufferObjectManager()){
+	    	 @Override
+	         public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+	    		 switch (pSceneTouchEvent.getAction()){
+		    		 case TouchEvent.ACTION_DOWN:{
+		    			 //Log.d(d,"mama touched down");
+		    			 //mama.setScale(1.05f);
+		    			 mama.setScaleCenter(mama.getX(), mama.getY());
+		    			 mama.setScale(1.09f);
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_MOVE:{
+		    			// Log.d(d,"mama touched move");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_UP:{
+		    			 Log.d(d,"mama touched up");
+		    			// mama.setScale(1.00f);
+		    			 playAudio(R.raw.ma);
+		    			 
+		    			 mama.setScaleCenter(mama.getX(), mama.getY());
+		    			 mama.setScale(1.0f);
+		    			 break;
+		    		 }
+		    		 default:{
+		    			 
+		    		 }
+	    		 }
+	    		 return false;
+			 }
+	    };
+	    mCurrentScene.registerTouchArea(mama);
+	   
 	    mama.setHeight(150.0f);
 	    mama.setWidth(150.0f);
+	    mCurrentScene.attachChild(mama);
 	   loadMama();
 	   Log.d(d,"ma");
-	    ma = new Sprite(200, 20, mMaTextureRegion, this.getVertexBufferObjectManager());
+	    ma = new Sprite(200, 20, mMaTextureRegion, this.getVertexBufferObjectManager()){
+	    	 @Override
+	         public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+	    		 switch (pSceneTouchEvent.getAction()){
+		    		 case TouchEvent.ACTION_DOWN:{
+		    			 //Log.d(d,"mama touched down");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_MOVE:{
+		    			// Log.d(d,"mama touched move");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_UP:{
+		    			 Log.d(d,"ma touched up");
+		    			 playAudio(R.raw.ma);
+		    			 break;
+		    		 }
+		    		 default:{
+		    			 
+		    		 }
+	    		 }
+	    		 return false;
+			 }
+	    };
+	    mCurrentScene.registerTouchArea(ma);
 	    ma.setHeight(150.0f);
 	    ma.setWidth(150.0f);
-	    ma.registerEntityModifier(new DelayModifier(44));
+	    mCurrentScene.attachChild(ma);
 	    loadMa();
 	    Log.d(d,"mula");
-	    mula = new Sprite(400, 20,mMulaTextureRegion, this.getVertexBufferObjectManager());
+	    mula = new Sprite(400, 20,mMulaTextureRegion, this.getVertexBufferObjectManager()){
+	    	 @Override
+	         public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+	    		 switch (pSceneTouchEvent.getAction()){
+		    		 case TouchEvent.ACTION_DOWN:{
+		    			 //Log.d(d,"mama touched down");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_MOVE:{
+		    			// Log.d(d,"mama touched move");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_UP:{
+		    			 Log.d(d,"mula touched up");
+		    			 playAudio(R.raw.ma);
+		    			 break;
+		    		 }
+		    		 default:{
+		    			 
+		    		 }
+	    		 }
+	    		 return false;
+			 }
+	    };
+	    mCurrentScene.registerTouchArea(mula);
 	    mula.setWidth(150.0f);
-	    mula.setHeight(150.0f);	      
+	    mula.setHeight(150.0f);
+	    mCurrentScene.attachChild(mula);
 	    loadMula();
 	    Log.d(d,"megh");
-	    megh = new Sprite(20, 200,mMeghTextureRegion, this.getVertexBufferObjectManager());
+	    megh = new Sprite(20, 200,mMeghTextureRegion, this.getVertexBufferObjectManager()){
+	    	 @Override
+	         public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+	    		 switch (pSceneTouchEvent.getAction()){
+		    		 case TouchEvent.ACTION_DOWN:{
+		    			 //Log.d(d,"mama touched down");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_MOVE:{
+		    			// Log.d(d,"mama touched move");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_UP:{
+		    			 Log.d(d,"megh touched up");
+		    			 playAudio(R.raw.ma);
+		    			 break;
+		    		 }
+		    		 default:{
+		    			 
+		    		 }
+	    		 }
+	    		 return false;
+			 }
+	    };
+	    mCurrentScene.registerTouchArea(megh);
 	    megh.setWidth(150.0f);
-	    megh.setHeight(150.0f);	      
+	    megh.setHeight(150.0f);
+	    mCurrentScene.attachChild(megh);
 	    loadMegh();
 	    Log.d(d,"macch");
-	    macch = new Sprite(200, 200,mMacchTextureRegion, this.getVertexBufferObjectManager());
+	    macch = new Sprite(200, 200,mMacchTextureRegion, this.getVertexBufferObjectManager()){
+	    	 @Override
+	         public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+	    		 switch (pSceneTouchEvent.getAction()){
+		    		 case TouchEvent.ACTION_DOWN:{
+		    			 //Log.d(d,"mama touched down");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_MOVE:{
+		    			// Log.d(d,"mama touched move");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_UP:{
+		    			 Log.d(d,"macch touched up");
+		    			 playAudio(R.raw.ma);
+		    			 break;
+		    		 }
+		    		 default:{
+		    			 
+		    		 }
+	    		 }
+	    		 return false;
+			 }
+	    };
+	    mCurrentScene.registerTouchArea(macch);
 	    macch.setWidth(220.0f);
-	    macch.setHeight(150.0f);     
+	    macch.setHeight(150.0f);
+	    mCurrentScene.attachChild(macch);
 	    loadMacch();
 	    
-	    mohis = new Sprite(400, 150,mMohisTextureRegion, this.getVertexBufferObjectManager());
+	    mohis = new Sprite(400, 150,mMohisTextureRegion, this.getVertexBufferObjectManager()){
+	    	 @Override
+	         public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+	    		 switch (pSceneTouchEvent.getAction()){
+		    		 case TouchEvent.ACTION_DOWN:{
+		    			 //Log.d(d,"mama touched down");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_MOVE:{
+		    			// Log.d(d,"mama touched move");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_UP:{
+		    			 Log.d(d,"Mohis touched up");
+		    			 playAudio(R.raw.ma);
+		    			 break;
+		    		 }
+		    		 default:{
+		    			 
+		    		 }
+	    		 }
+	    		 return false;
+			 }
+	    };
+	    mCurrentScene.registerTouchArea(mohis);
 	    mohis.setWidth(200.0f);
-	    mohis.setHeight(200.0f);     
+	    mohis.setHeight(200.0f);    
+	    mCurrentScene.attachChild(mohis);
 	    loadMohis();
+	    
+	    mParrot = new Sprite(CAMERA_WIDTH-200,CAMERA_HIGHT/2-100,mMparrotRegion, this.getVertexBufferObjectManager()){
+	    	 @Override
+	         public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+	    		 switch (pSceneTouchEvent.getAction()){
+		    		 case TouchEvent.ACTION_DOWN:{
+		    			 //Log.d(d,"mama touched down");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_MOVE:{
+		    			// Log.d(d,"mama touched move");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_UP:{
+		    			 Log.d(d,"Parrot touched up");
+		    			 break;
+		    		 }
+		    		 default:{
+		    			 
+		    		 }
+	    		 }
+	    		 return false;
+			 }
+	    };
+	    mCurrentScene.registerTouchArea(mParrot);
+	    mParrot.setWidth(200.0f);
+	    mParrot.setHeight(200.0f);
+	    mCurrentScene.attachChild(mParrot);
+	    loadMparrot();
+	    
+	    mArrowRighr = new Sprite(CAMERA_WIDTH-100,CAMERA_HIGHT- 100,mArrowRightRegion, this.getVertexBufferObjectManager()){
+	    	 @Override
+	         public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+	    		 switch (pSceneTouchEvent.getAction()){
+		    		 case TouchEvent.ACTION_DOWN:{
+		    			 //Log.d(d,"mama touched down");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_MOVE:{
+		    			// Log.d(d,"mama touched move");
+		    			 break;
+		    		 }
+		    		 case TouchEvent.ACTION_UP:{
+		    			 Log.d(d,"arrow touched up");
+		    			 mCurrentScene.detachSelf();
+		    			 break;
+		    		 }
+		    		 default:{
+		    			 
+		    		 }
+	    		 }
+	    		 return false;
+			 }
+	    };
+	    mCurrentScene.registerTouchArea(mArrowRighr);
+	    mArrowRighr.setWidth(100.0f);
+	    mArrowRighr.setHeight(100.0f);
+	    mCurrentScene.attachChild(mArrowRighr);
+	    loadArrow();
+	    
 		return mCurrentScene;
 	}
 	
 	void loadMama() {
-		DelayModifier dMod = new DelayModifier(1,new IEntityModifierListener() {
+		DelayModifier dMod = new DelayModifier(START_APPEARING_DELAY,new IEntityModifierListener() {
 
 			@Override
 			public void onModifierStarted(IModifier<IEntity> arg0,
@@ -148,14 +369,13 @@ public class Basectivity extends SimpleBaseGameActivity {
 				mama.setVisible(true);
 			}
 		});
-	    FadeInModifier macch_fim2 = new FadeInModifier(3.0f);
+	    FadeInModifier macch_fim2 = new FadeInModifier(APPEARING_TIME);
 	    SequenceEntityModifier macch_sm = new SequenceEntityModifier(dMod, macch_fim2);
 	    mama.registerEntityModifier(macch_sm);
-	    mCurrentScene.attachChild(mama);
 	}
 	
 	void loadMa() {
-		DelayModifier dMod = new DelayModifier(5,new IEntityModifierListener() {
+		DelayModifier dMod = new DelayModifier(START_APPEARING_DELAY+=3,new IEntityModifierListener() {
 
 			@Override
 			public void onModifierStarted(IModifier<IEntity> arg0,
@@ -169,13 +389,12 @@ public class Basectivity extends SimpleBaseGameActivity {
 				ma.setVisible(true);
 			}
 		});
-	    FadeInModifier macch_fim2 = new FadeInModifier(3.0f);
+	    FadeInModifier macch_fim2 = new FadeInModifier(APPEARING_TIME);
 	    SequenceEntityModifier macch_sm = new SequenceEntityModifier(dMod, macch_fim2);
 	    ma.registerEntityModifier(macch_sm);
-	    mCurrentScene.attachChild(ma);
 	}
 	void loadMula() {
-		DelayModifier dMod = new DelayModifier(10,new IEntityModifierListener() {
+		DelayModifier dMod = new DelayModifier(START_APPEARING_DELAY+=5,new IEntityModifierListener() {
 
 			@Override
 			public void onModifierStarted(IModifier<IEntity> arg0,
@@ -189,14 +408,13 @@ public class Basectivity extends SimpleBaseGameActivity {
 				mula.setVisible(true);
 			}
 		});
-	    FadeInModifier macch_fim2 = new FadeInModifier(3.0f);
+	    FadeInModifier macch_fim2 = new FadeInModifier(APPEARING_TIME);
 	    SequenceEntityModifier macch_sm = new SequenceEntityModifier(dMod, macch_fim2);
 	    mula.registerEntityModifier(macch_sm);
-	    mCurrentScene.attachChild(mula);
 	}
 	
 	void loadMegh() {
-		DelayModifier dMod = new DelayModifier(15,new IEntityModifierListener() {
+		DelayModifier dMod = new DelayModifier(START_APPEARING_DELAY+=5,new IEntityModifierListener() {
 
 			@Override
 			public void onModifierStarted(IModifier<IEntity> arg0,
@@ -210,14 +428,13 @@ public class Basectivity extends SimpleBaseGameActivity {
 				megh.setVisible(true);
 			}
 		});
-	    FadeInModifier macch_fim2 = new FadeInModifier(3.0f);
+	    FadeInModifier macch_fim2 = new FadeInModifier(APPEARING_TIME);
 	    SequenceEntityModifier macch_sm = new SequenceEntityModifier(dMod, macch_fim2);
 	    megh.registerEntityModifier(macch_sm);
-	    mCurrentScene.attachChild(megh);
 	}
 	
 	void loadMacch() {
-		DelayModifier dMod = new DelayModifier(20,new IEntityModifierListener() {
+		DelayModifier dMod = new DelayModifier(START_APPEARING_DELAY+=5,new IEntityModifierListener() {
 
 			@Override
 			public void onModifierStarted(IModifier<IEntity> arg0,
@@ -231,14 +448,13 @@ public class Basectivity extends SimpleBaseGameActivity {
 				macch.setVisible(true);
 			}
 		});
-	    FadeInModifier macch_fim2 = new FadeInModifier(3.0f);
+	    FadeInModifier macch_fim2 = new FadeInModifier(APPEARING_TIME);
 	    SequenceEntityModifier macch_sm = new SequenceEntityModifier(dMod, macch_fim2);
 	    macch.registerEntityModifier(macch_sm);
-	    mCurrentScene.attachChild(macch);
 	}
 
 	void loadMohis() {
-		DelayModifier dMod = new DelayModifier(25,new IEntityModifierListener() {
+		DelayModifier dMod = new DelayModifier(START_APPEARING_DELAY+=5,new IEntityModifierListener() {
 
 			@Override
 			public void onModifierStarted(IModifier<IEntity> arg0,
@@ -252,10 +468,42 @@ public class Basectivity extends SimpleBaseGameActivity {
 				mohis.setVisible(true);
 			}
 		});
-	    FadeInModifier macch_fim2 = new FadeInModifier(3.0f);
+	    FadeInModifier macch_fim2 = new FadeInModifier(APPEARING_TIME);
 	    SequenceEntityModifier macch_sm = new SequenceEntityModifier(dMod, macch_fim2);
 	    mohis.registerEntityModifier(macch_sm);
-	    mCurrentScene.attachChild(mohis);
+	}
+	void loadArrow() {
+		DelayModifier dMod = new DelayModifier(START_APPEARING_DELAY+=5,new IEntityModifierListener() {
+
+			@Override
+			public void onModifierStarted(IModifier<IEntity> arg0,
+					IEntity arg1) {
+				mArrowRighr.setVisible(false);
+			}
+
+			@Override
+			public void onModifierFinished(IModifier<IEntity> arg0,
+					IEntity arg1) {
+				mArrowRighr.setVisible(true);
+			}
+		});
+	    FadeInModifier macch_fim2 = new FadeInModifier(APPEARING_TIME);
+	    SequenceEntityModifier macch_sm = new SequenceEntityModifier(dMod, macch_fim2);
+	    mArrowRighr.registerEntityModifier(macch_sm);
+	}
+	
+	void loadMparrot() {
+		MoveModifier mMod = new MoveModifier(4.0f, CAMERA_WIDTH+200, CAMERA_WIDTH-250, CAMERA_HIGHT/2-100, CAMERA_HIGHT/2-100);
+		mParrot.registerEntityModifier(mMod);
+	}
+	void playAudio(int val){
+		 MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(),val);
+	        try {
+	            mediaPlayer.start();
+	            mediaPlayer.setLooping(false);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
 	}
 
 }
