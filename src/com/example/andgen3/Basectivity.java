@@ -109,7 +109,7 @@ public class Basectivity extends SimpleBaseGameActivity {
 		
 		
 		this.mBitmapPlayerTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 1600,1200, TextureOptions.DEFAULT);
-		this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapPlayerTextureAtlas, this, "sprite_perrot.png", 0, 0, 3, 3);
+		this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapPlayerTextureAtlas, this, "sprite_perrot4.png", 0, 0,5,3);
 
 		try {
 			bitmapTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 0));
@@ -385,9 +385,11 @@ public class Basectivity extends SimpleBaseGameActivity {
 			}
 		};
 
-		Parrpt_flying.setPosition(CAMERA_WIDTH - 200, CAMERA_HIGHT / 2 - 100);
-		Parrpt_flying.animate(new long[]{200, 200, 200},3, 5, true);
+		Parrpt_flying.setPosition(CAMERA_WIDTH - 200, CAMERA_HIGHT / 2 - 500);
+		Parrpt_flying.animate(new long[]{200, 200, 200, 200, 200}, 3, 7, true);
 		Parrpt_flying.setFlippedHorizontal(true);
+		Parrpt_flying.setHeight(200f);
+		Parrpt_flying.setWidth(200f);
 		mCurrentScene.registerTouchArea(Parrpt_flying);
 				
 		
@@ -703,6 +705,7 @@ public class Basectivity extends SimpleBaseGameActivity {
 					public void onModifierFinished(IModifier<IEntity> arg0,
 							IEntity arg1) {
 						playAudio(R.raw.parrot_introducing_mo);
+						mLetter.setVisible(false);
 						
 					}
 				});
