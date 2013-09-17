@@ -88,7 +88,7 @@ public class Basectivity extends SimpleBaseGameActivity {
 	@Override
 	protected void onCreateResources() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		bitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(),1624, 1624,TextureOptions.NEAREST);
+		bitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(),2624, 2624,TextureOptions.NEAREST);
 		//bgbitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(),1024, 1024,TextureOptions.NEAREST);
 		this.mTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.bitmapTextureAtlas, this, "jungle16.png");
 		this.mMamaTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.bitmapTextureAtlas, this, "mama.png");
